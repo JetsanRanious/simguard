@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: simguard
+      POSTGRES_USER: simguard
+      POSTGRES_PASSWORD: simguard
+    ports:
+      - "5432:5432"
+    volumes:
+      - simguard-db:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: simguard
+      DB_USER: simguard
+      DB_PASSWORD: simguard
+      JWT_SECRET: local-dev-secret
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    environment:
+      REACT_APP_API_BASE: http://localhost:8080
+    ports:
+      - "3000:3000"
+
+volumes:
+  simguard-db:
